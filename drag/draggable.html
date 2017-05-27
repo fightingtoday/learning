@@ -1,0 +1,75 @@
+<!DOCTYPE>
+<html>
+	<head>
+		<title>h5_拖放</title>
+    <meta charset="UTF-8">
+		<meta name="keywords" content="拖放"/>
+		<meta name="description" content="联系h5的拖放"/>
+		<meta name="author" content="王翠" />
+    <meta name="viewport" content="width=device-width initial-scale=1.0" />
+	</head>
+  <style>
+ #drag{
+  width:100px;
+  height:100px;
+  border:1px solid gray;
+  margin-bottom: 10px;
+  background-color: #f0f;
+ }
+.text{
+  width:200px;
+  height:200px;
+  border:1px solid gray;
+  background-color: #fff;
+ }
+  </style>
+  <script type="text/javascript">
+  window.onload=function(){
+    init();
+  }
+ function init() {
+  var source = document.getElementById("drag");
+  var dorpElement = document.querySelectorAll(".text");//可在两个空div来回拖动
+  // var dragIcon = document.createElement('img')// 设置拖动图标
+  // dragIcon.src = 'img/drag_icon.png'// 设置拖动图标
+  // 开始拖动
+  source.addEventListener('dragstart', function(ev){
+    var dt = ev.dataTransfer;//dataTransfer对象专门用来存放拖放时要带的数据
+    dt.rffectAllowed = 'all'
+    // dt.setData('text/plain','你好') //拖动时往空div中添加数据‘你好’
+    dt.setData('text/plain', ev.target.id) //拖动时将自生id传给空div，通过appendchild移动元素
+    // dt.setDragImage(dragIcon, -10,-10) // 设置拖动图标
+  },false)
+  // 注意要为每个div设置拖放事件
+  for (var i=0; i<dorpElement.length;i++ ) {
+    // 拖放操作结束
+    dorpElement[i].addEventListener('dragend', function(ev){
+      ev.preventDefault;//不执行默认处理（拒绝被拖放）
+    },false)
+    // 放置事件
+    dorpElement[i].addEventListener('drop', function(ev){
+      var dt = ev.dataTransfer;
+      var text = dt.getData("text/plain");
+      // dorpElement.textContent += text;
+      ev.target.appendChild(document.getElementById(text))
+      ev.preventDefault(); //不执行默认处理（拒绝被拖放）
+      ev.stopPropagation();
+    },false)
+  }  
+  
+ }
+ // 设置页面属性，不执行默认处理
+ document.ondragover = function(e){
+  e.preventDefault();//不执行默认处理（拒绝被拖放）
+ }
+  document.ondrop = function(e){
+  e.preventDefault();//不执行默认处理（拒绝被拖放）
+ }
+  </script>
+	<body>
+	   <h3>简单的拖放实现</h3>
+     <div id="drag" draggable = 'true'>拖动我</div>
+     <div class="text"></div>
+     <div class="text"></div>
+	</body>
+</html>

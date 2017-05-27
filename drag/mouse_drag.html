@@ -1,0 +1,115 @@
+<!DOCTYPE>
+<html>
+	<head>
+		<title>拖放_使用mouse事件实现</title>
+    <meta charset="UTF-8">
+		<meta name="keywords" content="拖放"/>
+		<meta name="description" content="使用mouse事件实现拖放"/>
+		<meta name="author" content="王翠" />
+    <meta name="viewport" content="width=device-width initial-scale=1.0" />
+	</head>
+  <style>
+ #drag{
+  width:50px;
+  height:50px;
+  border:1px solid gray;
+  margin-bottom: 10px;
+  background-color: #f0f;
+  position: absolute;
+  cursor:move;
+ }
+#text{
+  width:400px;
+  height:400px;
+  border:1px solid gray;
+  background-color: #fff;
+  position:relative;
+  margin: 0 auto;
+ }
+  </style>
+  
+	<body>  
+     <div id="text">
+        <div id="drag"></div>
+     </div>
+	</body>
+  <script type="text/javascript">
+  window.onload = function () {
+    DragDrop.dragStart();
+  }
+  var VG = {}; // 命名空间
+  VG.DOM = {
+    $: function (id) {
+      return typeof id == 'string' ? document.getElementById(id) : id;
+    },
+    // 绑定事件
+    bindEvent: function (node, type, func) {
+      if (node.addEventListener) {
+        node.addEventListener(type, func,false);
+      } else if (node.attachEvent) {
+        node.attachEvent('on' + type, func)
+      } else {
+        node['on'+type] = func;
+      }
+    },
+    // 获取事件
+    getEvent: function (event) {
+      return event ? event : window.event;
+    },
+    // 获取事件目标
+    getTarget: function (event) {
+      return event.target || event.srcElement;
+    }
+  }
+  var DragDrop = function () {
+    var box = VG.DOM.$('text')
+    var dragBox = VG.DOM.$('drag')
+    var dragging = null;
+    function drag (event) {
+      event = VG.DOM.getEvent(event)
+      var target = VG.DOM.getTarget(event)
+      switch (event.type) {
+        case 'mousedown':
+          if (target.id == 'drag') {
+            dragging = target
+          }
+          break;
+        case 'mousemove':
+          if (dragging) { // 当有拖动目标时执行
+            sTop = document.documentElement.scrollTop || document.body.scrollTop;//当有滚动条时减轻页面高度
+            dragging.style.left = (event.clientX - box.offsetLeft - dragBox.offsetWidth/2) + 'px';
+            dragging.style.top = (event.clientY + sTop - box.offsetTop - dragBox.offsetHeight/2) + 'px';
+            var left = parseInt(dragging.style.left)
+            var top = parseInt(dragging.style.top)
+            // 比较坐标是否超出范围
+            if (left < 0 ){
+              dragging.style.left = 0 + 'px'// 防止左溢
+            }
+            if (top < 0 ){
+              dragging.style.top = 0 + 'px' // 防止上溢
+            }
+            if (left > box.offsetWidth - dragBox.offsetWidth){ // 防止右溢
+              dragging.style.left = (box.offsetWidth - dragBox.offsetWidth - 2) + 'px'
+            }
+            if (top > box.offsetHeight - dragBox.offsetHeight){ // 防止下溢
+              dragging.style.top = (box.offsetHeight - dragBox.offsetHeight - 2) + 'px'
+            }
+          }
+          break;
+        case 'mouseup':
+          // 清空拖放目标
+          dragging = null;
+          break;
+      }
+    };
+    return {
+      dragStart: function () {
+        VG.DOM.bindEvent(document, 'mousedown', drag);
+        VG.DOM.bindEvent(document, 'mousemove', drag);
+        VG.DOM.bindEvent(document, 'mouseup', drag);
+      }
+    }
+  }()
+  
+  </script>
+</html>
